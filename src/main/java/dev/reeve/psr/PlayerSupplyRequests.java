@@ -2,12 +2,14 @@ package dev.reeve.psr;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import dev.reeve.psr.messaging.KafkaHandler;
+import dev.reeve.psr.messaging.MessageHandler;
+import dev.reeve.psr.messaging.RabbitMQHandler;
 import dev.reeve.psr.proxy.BungeecordHandler;
 import dev.reeve.psr.proxy.ProxyHandler;
 import dev.reeve.psr.proxy.VelocityHandler;
 import lombok.Getter;
 import lombok.SneakyThrows;
-import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.BufferedWriter;
@@ -44,7 +46,11 @@ public class PlayerSupplyRequests extends JavaPlugin {
 			case BUNGEECORD -> proxyHandler = new BungeecordHandler(this);
 			case VELOCITY -> proxyHandler = new VelocityHandler(this);
 		}
-		messageHandler = new MessageHandler(config, proxyHandler);
+
+		switch (config.getMessager()) {
+			case RABBITMQ -> messageHandler = new RabbitMQHandler(config, proxyHandler, this);
+			case KAFKA -> messageHandler = new KafkaHandler(config, proxyHandler, this);
+		}
 
 	}
 }
